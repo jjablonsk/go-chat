@@ -1,0 +1,38 @@
+// For format details, see https://aka.ms/vscode-remote/devcontainer.json or this file's README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.195.0/containers/go
+{
+	"name": "Go",
+	"build": { 
+		"dockerfile": "Dockerfile",
+		"args": {
+			"USER": "${localEnv:USER}"
+		}
+	},
+
+	// Configure tool-specific properties.
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"golang.Go"
+			],
+			// Set *default* container specific settings.json values on container create.
+			"settings": { 
+				"go.toolsManagement.checkForUpdates": "local",
+				"go.useLanguageServer": true,
+				"go.gopath": "/home/${localEnv:USER}/go",
+				"go.goroot": "/usr/local/go"
+			}
+		}
+	},
+	"containerEnv": {
+		"GOPATH":"/home/${localEnv:USER}/go"
+	},
+
+	"mounts": [
+		"source=${localEnv:HOME}/.gitconfig,target=/home/${localEnv:USER}/.gitconfig,type=bind,consistency=cached"
+	],
+	// Container user to use
+	"remoteUser": "${localEnv:USER}"
+}
