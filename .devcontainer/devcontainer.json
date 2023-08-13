@@ -1,18 +1,13 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/go
+// For format details, see https://aka.ms/vscode-remote/devcontainer.json or this file's README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.195.0/containers/go
 {
 	"name": "Go",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/go:1-1.20-bullseye"
-,
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "go version",
+	"build": { 
+		"dockerfile": "Dockerfile",
+		"args": {
+			"USER": "${localEnv:USER}"
+		}
+	},
 
 	// Configure tool-specific properties.
 	"customizations": {
@@ -31,11 +26,13 @@
 			}
 		}
 	},
+	"containerEnv": {
+		"GOPATH":"/home/${localEnv:USER}/go"
+	},
+
 	"mounts": [
-		"source=${localEnv:HOME}/.netrc,target=/home/${localEnv:USER}/.netrc,type=bind,consistency=cached",
 		"source=${localEnv:HOME}/.gitconfig,target=/home/${localEnv:USER}/.gitconfig,type=bind,consistency=cached"
 	],
-
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+	// Container user to use
+	"remoteUser": "${localEnv:USER}"
 }
