@@ -12,6 +12,11 @@ type Server struct {
 	connnections map[*websocket.Conn]bool
 }
 
+type Message struct {
+	Sender string `json:"sender"`
+	Msg    []byte `json:"msg"`
+}
+
 func NewServer() *Server {
 	return &Server{
 		connnections: make(map[*websocket.Conn]bool),
@@ -26,7 +31,7 @@ func (s *Server) handleWebSocket(ws *websocket.Conn) {
 }
 
 func (s *Server) readLoop(ws *websocket.Conn) {
-	buf := make([]byte, 1024)
+	buf := make([]byte, 2048)
 	for {
 		n, err := ws.Read(buf)
 		if err != nil {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -10,19 +11,21 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+type Message struct {
+	Sender string `json:"sender"`
+	Msg    []byte `json:"msg"`
+}
+
 func main() {
-	nick := os.Args[1:]
-	origin := "From UNKNOWN"
-	if nick != nil {
-		origin = fmt.Sprintf("From %s", nick)
-	}
+	nick := os.Args[1]
+	origin := "ws://localhost:3000/"
 	url := "ws://localhost:3000/ws"
 	ws, err := websocket.Dial(url, "", origin)
 	if err != nil {
 		log.Fatal(err)
 	}
 	go func(ws *websocket.Conn) {
-		watchForInput(ws)
+		watchForInput(ws, nick)
 	}(ws)
 
 	go func(ws *websocket.Conn) {
@@ -32,15 +35,20 @@ func main() {
 	<-make(chan bool)
 }
 
-func watchForInput(ws *websocket.Conn) {
+func watchForInput(ws *websocket.Conn, sender string) {
 	reader := bufio.NewReader(os.Stdin)
 	for true {
-		message, err := reader.ReadString('\n')
+		text, err := reader.ReadString('\n')
 		if err != nil {
 			log.Fatal(err)
 		}
-		message = strings.TrimSpace(message)
-		_, err = ws.Write([]byte(message))
+		message := Message{
+			Sender: sender,
+			Msg:    []byte(strings.TrimSpace(text)),
+		}
+		json_message, _ := json.Marshal(message)
+
+		_, err = ws.Write(json_message)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -55,6 +63,8 @@ func printMsg(ws *websocket.Conn) {
 		if n, err = ws.Read(msg); err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("Received: %s.\n", msg[:n])
+		var message Message
+		json.Unmarshal([]byte(msg[:n]), &message)
+		fmt.Printf("%s say: %s \n", message.Sender, message.Msg)
 	}
 }
