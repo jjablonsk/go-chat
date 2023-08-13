@@ -37,10 +37,19 @@ func (s *Server) readLoop(ws *websocket.Conn) {
 			continue
 		}
 		msg := buf[:n]
-		fmt.Println(string(msg))
-		ws.Write([]byte("Thanks! "))
+		s.broadcast(msg)
 	}
 
+}
+func (s *Server) broadcast(b []byte) {
+	for ws := range s.connnections {
+		go func(ws *websocket.Conn) {
+			fmt.Printf("Sending %s to %s \n", b, ws.RemoteAddr())
+			if _, err := ws.Write(b); err != nil {
+				fmt.Println("write error", err)
+			}
+		}(ws)
+	}
 }
 
 func main() {
